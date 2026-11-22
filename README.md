@@ -14,7 +14,7 @@
 
 ## 环境要求
 
-- JDK 21
+- JDK 25（Loom 1.19.x 在 JVM 25 上运行；模组字节码通过 release 21 编译）
 - Minecraft Java 1.21.1
 - Fabric Loader 0.20.1+
 - Fabric API（对应 1.21.1）
@@ -39,7 +39,7 @@ NewMod/
 
 ## 构建
 
-需要本地安装 **Gradle 9.8.2+**（版本见 `gradle/wrapper/gradle-wrapper.properties`）与 JDK 21。
+需要本地安装 **Gradle 9.8.2+**（版本见 `gradle/wrapper/gradle-wrapper.properties`）与 JDK 25。
 
 首次可在项目根目录生成 Wrapper 脚本与 jar：
 
@@ -71,8 +71,9 @@ gradle build
 | Minecraft       | 1.21.1              |
 | Fabric Loader   | 0.20.1              |
 | Fabric API      | 0.116.18+1.21.1     |
-| Loom            | 1.19-SNAPSHOT       |
-| Java            | 21                  |
+| Loom            | 1.19.4              |
+| Java（构建运行）| 25                  |
+| Java（编译目标）| 21                  |
 
 ## 许可证
 
