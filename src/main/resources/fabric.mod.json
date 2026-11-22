@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "newmod",
+	"version": "${version}",
+	"name": "NewMod",
+	"description": "A Fabric mod for Minecraft Java 1.21.1.",
+	"authors": [
+		"minizyz"
+	],
+	"contact": {
+		"homepage": "https://github.com/minizyz/NewMod"
+	},
+	"license": "CC0-1.0",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.example.newmod.NewMod"
+		],
+		"client": [
+			"com.example.newmod.client.NewModClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
