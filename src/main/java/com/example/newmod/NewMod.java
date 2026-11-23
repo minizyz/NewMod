@@ -1,6 +1,7 @@
 package com.example.newmod;
 
 import com.example.newmod.entity.ModEntities;
+import com.example.newmod.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
@@ -14,6 +15,8 @@ public class NewMod implements ModInitializer {
 	public void onInitialize() {
 		// 注册实体类型与默认属性
 		ModEntities.register();
+		// 注册物品（含刷怪蛋）
+		ModItems.register();
 		LOGGER.info("NewMod initialized.");
 	}
 

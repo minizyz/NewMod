@@ -1,30 +1,41 @@
 package com.example.newmod.client;
 
+import com.example.newmod.NewMod;
 import com.example.newmod.entity.ModSlime;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.SlimeModel;
-import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.layers.SlimeOuterLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 /**
- * 史莱姆渲染器：复用原版史莱姆的模型（内层 + 外层果冻层）与原版纹理，
- * 只把泛型换成自定义的 {@link ModSlime}，因此外观与缩放逻辑和原版一致。
+ * 自定义史莱姆渲染器。
+ *
+ * <p>模型层与贴图都注册在 {@code newmod} 命名空间下，不复用原版的
+ * {@code minecraft:mod_slime} 模型层或 {@code minecraft:textures/entity/slime/slime.png}，
+ * 因此这个生物与原版史莱姆完全独立。
  */
 @Environment(EnvType.CLIENT)
 public class ModSlimeRenderer extends MobRenderer<ModSlime, SlimeModel<ModSlime>> {
-	private static final ResourceLocation SLIME_LOCATION =
-			ResourceLocation.withDefaultNamespace("textures/entity/slime/slime.png");
+
+	/** 内层身体（含眼睛、嘴）模型层。 */
+	public static final ModelLayerLocation INNER_LAYER =
+			new ModelLayerLocation(NewMod.id("mod_slime"), "main");
+	/** 外层果冻模型层。 */
+	public static final ModelLayerLocation OUTER_LAYER =
+			new ModelLayerLocation(NewMod.id("mod_slime"), "outer");
+
+	private static final ResourceLocation TEXTURE =
+			NewMod.id("textures/entity/mod_slime.png");
 
 	public ModSlimeRenderer(EntityRendererProvider.Context context) {
-		super(context, new SlimeModel<>(context.bakeLayer(ModelLayers.SLIME)), 0.25F);
-		this.addLayer(new SlimeOuterLayer<>(this, context.getModelSet()));
+		super(context, new SlimeModel<>(context.bakeLayer(INNER_LAYER)), 0.25F);
+		this.addLayer(new ModSlimeOuterLayer<>(this, context.getModelSet()));
 	}
 
 	@Override
@@ -46,6 +57,6 @@ public class ModSlimeRenderer extends MobRenderer<ModSlime, SlimeModel<ModSlime>
 
 	@Override
 	public ResourceLocation getTextureLocation(ModSlime slime) {
-		return SLIME_LOCATION;
+		return TEXTURE;
 	}
 }

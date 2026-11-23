@@ -18,6 +18,32 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 }
 
+// 贴图等二进制资源以 base64 文本入库（GitHub 连接器只能提交文本），构建时解码回真实文件。
+def texturesB64Dir = file('textures_b64')
+def generatedTexturesDir = layout.buildDirectory.dir('generated/modTextures')
+
+tasks.register('decodeTextures') {
+	inputs.dir(texturesB64Dir)
+	outputs.dir(generatedTexturesDir)
+
+	doLast {
+		def outRoot = generatedTexturesDir.get().asFile
+		outRoot.deleteDir()
+		texturesB64Dir.eachFileRecurse { f ->
+			if (f.isFile() && f.name.endsWith('.b64')) {
+				def relative = f.absolutePath.substring(texturesB64Dir.absolutePath.length() + 1)
+				def target = new File(outRoot, relative.substring(0, relative.length() - 4))
+				target.parentFile.mkdirs()
+				target.bytes = java.util.Base64.decoder.decode(f.getText('UTF-8').replaceAll(/\s/, ''))
+			}
+		}
+	}
+}
+
+sourceSets.main.resources.srcDir(generatedTexturesDir)
+tasks.named('processResources').configure { dependsOn 'decodeTextures' }
+tasks.matching { it.name == 'sourcesJar' }.configureEach { dependsOn 'decodeTextures' }
+
 processResources {
 	def version = project.version
 	inputs.property "version", version
