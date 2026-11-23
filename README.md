@@ -17,6 +17,7 @@
   - 已驯服的史莱姆不会在和平难度下被清除
 - [x] 刷怪蛋 `newmod:mod_slime_spawn_egg`，已加入创造模式“刷怪蛋”分类
 - [x] 创造模式物品栏新增 NewMod 专属页 `newmod:main`（图标为史莱姆刷怪蛋，模组物品集中在此）
+- [x] 通过 Mixin 直接替换原版史莱姆：`minecraft:slime` 的所有创建路径（自然生成、刷怪蛋、刷怪笼、`/summon`、旧存档读档、客户端同步）都改为生成 `ModSlime`，实体 ID/存档格式不变
 - [ ] 更多生物与材质
 
 ## 环境要求
@@ -36,6 +37,7 @@ NewMod/
 └── src/main/
     ├── resources/
     │   ├── fabric.mod.json                              # 模组元数据与入口点
+    │   ├── newmod.mixins.json                           # Mixin 配置
     │   └── assets/newmod/                               # 模型、语言文件
     └── java/com/example/newmod/
         ├── NewMod.java                                  # 主入口（ModInitializer）
@@ -43,6 +45,8 @@ NewMod/
         │   ├── EmptyEntity.java                         # 空生物实体类
         │   ├── ModSlime.java                            # 自定义史莱姆（驯服/反击逻辑）
         │   └── ModEntities.java                         # 实体类型与属性注册
+        ├── mixin/
+        │   └── EntityTypeMixin.java                     # 把 minecraft:slime 换成 ModSlime
         ├── item/
         │   ├── ModItems.java                            # 刷怪蛋等物品注册
         │   └── ModItemGroups.java                       # 创造模式 NewMod 专属页
