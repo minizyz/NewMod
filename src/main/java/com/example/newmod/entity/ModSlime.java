@@ -17,8 +17,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -63,10 +63,12 @@ public class ModSlime extends Slime {
 	}
 
 	/**
-	 * 默认属性：原版史莱姆没有额外属性，血量/速度/攻击力会在 setSize 时按体积重设。
+	 * 默认属性必须和原版史莱姆一致：{@link Monster#createMonsterAttributes()} 比
+	 * {@code Mob.createMobAttributes()} 多一条 ATTACK_DAMAGE。史莱姆的 {@code setSize}
+	 * 会直接读写这个属性，缺了它会在生成时抛空指针，导致刷怪蛋/召唤失败。
 	 */
 	public static AttributeSupplier.Builder createAttributes() {
-		return Mob.createMobAttributes();
+		return Monster.createMonsterAttributes();
 	}
 
 	@Override
