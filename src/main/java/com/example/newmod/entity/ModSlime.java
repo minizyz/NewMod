@@ -3,6 +3,7 @@ package com.example.newmod.entity;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.example.newmod.mixin.SlimeMoveControlAccessor;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -11,6 +12,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -37,6 +39,7 @@ import net.minecraft.world.level.Level;
  *   <li>驯服后不再主动把玩家设为目标</li>
  *   <li>驯服者（含其射出的箭等投射物）无法伤害它</li>
  *   <li>驯服者被攻击时，它会主动把攻击者设为目标并反击</li>
+ *   <li>驯服后自动跟随主人：主人走远就朝主人跳过去，超过 16 格直接传送到主人身边</li>
  * </ul>
  */
 public class ModSlime extends Slime {
@@ -45,6 +48,10 @@ public class ModSlime extends Slime {
 	public static final float TAME_CHANCE = 0.3F;
 	/** 第几次尝试必定成功。 */
 	public static final int GUARANTEED_TAME_ATTEMPT = 5;
+	/** 与主人超过这个距离（格）才开始跟随。 */
+	private static final double FOLLOW_START_DISTANCE = 4.0D;
+	/** 与主人超过这个距离（格）就直接传送到主人附近。 */
+	private static final double FOLLOW_TELEPORT_DISTANCE = 16.0D;
 
 	private static final EntityDataAccessor<Optional<UUID>> DATA_OWNER =
 			SynchedEntityData.defineId(ModSlime.class, EntityDataSerializers.OPTIONAL_UUID);
@@ -89,7 +96,7 @@ public class ModSlime extends Slime {
 		return this.entityData.get(DATA_OWNER);
 	}
 
-	/** 取主人；客户端没有服务器玩家列表，返回 null。 */
+	/** 取主人；主人不在线时返回 null。 */
 	public Player getOwner() {
 		Optional<UUID> uuid = this.getOwnerUUID();
 		if (uuid.isEmpty() || this.level().getServer() == null) {
@@ -212,7 +219,12 @@ public class ModSlime extends Slime {
 		if (this.level().isClientSide || !this.isTamed()) {
 			return;
 		}
+		this.tickOwnerRevenge();
+		this.tickFollowOwner();
+	}
 
+	/** 主人被攻击时，锁定攻击者并反击。 */
+	private void tickOwnerRevenge() {
 		Player owner = this.getOwner();
 		if (owner == null || !owner.isAlive()) {
 			return;
@@ -238,6 +250,60 @@ public class ModSlime extends Slime {
 		this.bypassTargetFilter = true;
 		this.setTarget(attacker);
 		this.bypassTargetFilter = false;
+	}
+
+	/**
+	 * 自动跟随主人：近处靠原版跳跃朝主人跳过去，超过 16 格直接传送到主人身边
+	 * （和原版狼的跟随方式一致，不会卡在墙里）。
+	 */
+	private void tickFollowOwner() {
+		if (this.getTarget() != null || this.isPassenger()) {
+			// 正在战斗或被人骑乘时不抢控制权
+			return;
+		}
+		Player owner = this.getOwner();
+		if (owner == null || !owner.isAlive() || owner.level() != this.level()) {
+			return;
+		}
+
+		double distanceSqr = this.distanceToSqr(owner);
+
+		if (distanceSqr > FOLLOW_TELEPORT_DISTANCE * FOLLOW_TELEPORT_DISTANCE
+				&& this.tickCount % 10 == 0
+				&& !owner.getAbilities().flying
+				&& !owner.isFallFlying()
+				&& this.teleportNear(owner)) {
+			return;
+		}
+
+		if (distanceSqr <= FOLLOW_START_DISTANCE * FOLLOW_START_DISTANCE) {
+			// 已经够近，不再转向，让它原地跳
+			return;
+		}
+
+		if (this.getMoveControl() instanceof SlimeMoveControlAccessor accessor) {
+			double dx = owner.getX() - this.getX();
+			double dz = owner.getZ() - this.getZ();
+			float yRot = (float) (Mth.atan2(dz, dx) * (180.0D / Math.PI)) - 90.0F;
+			accessor.newmod$setDirection(Mth.wrapDegrees(yRot), false);
+			accessor.newmod$setWantedMovement(distanceSqr > 9.0D ? 1.0D : 0.6D);
+		}
+	}
+
+	/** 在主人附近找一个不卡墙的位置传送过去。 */
+	private boolean teleportNear(Player owner) {
+		for (int attempt = 0; attempt < 10; attempt++) {
+			double x = owner.getX() + (this.random.nextDouble() - 0.5D) * 4.0D;
+			double y = owner.getY();
+			double z = owner.getZ() + (this.random.nextDouble() - 0.5D) * 4.0D;
+			if (!this.level().noCollision(this,
+					this.getBoundingBox().move(x - this.getX(), y - this.getY(), z - this.getZ()))) {
+				continue;
+			}
+			this.teleportTo(x, y, z);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

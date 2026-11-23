@@ -3,7 +3,9 @@
 	"package": "com.example.newmod.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"EntityTypeMixin"
+		"EntityTypeMixin",
+		"SlimeMoveControlAccessor",
+		"SlimeRandomDirectionGoalMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
