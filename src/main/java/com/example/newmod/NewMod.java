@@ -1,6 +1,7 @@
 package com.example.newmod;
 
 import com.example.newmod.entity.ModEntities;
+import com.example.newmod.item.ModItemGroups;
 import com.example.newmod.item.ModItems;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.resources.ResourceLocation;
@@ -17,6 +18,8 @@ public class NewMod implements ModInitializer {
 		ModEntities.register();
 		// 注册物品（含刷怪蛋）
 		ModItems.register();
+		// 注册创造模式物品栏的 NewMod 专属页
+		ModItemGroups.register();
 		LOGGER.info("NewMod initialized.");
 	}
 

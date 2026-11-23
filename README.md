@@ -16,6 +16,7 @@
   - 驯服者被攻击时，史莱姆会主动锁定攻击者并反击（32 格内）
   - 已驯服的史莱姆不会在和平难度下被清除
 - [x] 刷怪蛋 `newmod:mod_slime_spawn_egg`，已加入创造模式“刷怪蛋”分类
+- [x] 创造模式物品栏新增 NewMod 专属页 `newmod:main`（图标为史莱姆刷怪蛋，模组物品集中在此）
 - [ ] 更多生物与材质
 
 ## 环境要求
@@ -43,7 +44,8 @@ NewMod/
         │   ├── ModSlime.java                            # 自定义史莱姆（驯服/反击逻辑）
         │   └── ModEntities.java                         # 实体类型与属性注册
         ├── item/
-        │   └── ModItems.java                            # 刷怪蛋等物品注册
+        │   ├── ModItems.java                            # 刷怪蛋等物品注册
+        │   └── ModItemGroups.java                       # 创造模式 NewMod 专属页
         └── client/
             ├── NewModClient.java                        # 客户端入口（ClientModInitializer）
             ├── EmptyEntityRenderer.java                 # 占位渲染器
