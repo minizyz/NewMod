@@ -8,8 +8,10 @@
 - [x] 注册一个空生物 `empty_entity`（`EmptyEntity`）
   - 暂未赋予 AI：`registerGoals()` 留空，未注册任何行为目标
   - 暂未赋予材质：渲染器仅返回预留纹理路径，贴图文件后续补充
+- [x] 自定义史莱姆 `mod_slime`（`ModSlime`）
+  - 直接继承原版 `Slime`，AI（跳跃移动、随机跳、攻击、死亡分裂等）全部沿用父类实现
+  - 渲染复用原版史莱姆模型与纹理，可用 `/summon newmod:mod_slime` 生成
 - [ ] 生物模型与贴图
-- [ ] AI 行为（移动、攻击、游荡等）
 - [ ] 刷怪蛋 / 生成规则 / 战利品表
 
 ## 环境要求
@@ -31,10 +33,12 @@ NewMod/
         ├── NewMod.java                                  # 主入口（ModInitializer）
         ├── entity/
         │   ├── EmptyEntity.java                         # 空生物实体类
+        │   ├── ModSlime.java                            # 自定义史莱姆（继承原版 Slime）
         │   └── ModEntities.java                         # 实体类型与属性注册
         └── client/
             ├── NewModClient.java                        # 客户端入口（ClientModInitializer）
-            └── EmptyEntityRenderer.java                 # 占位渲染器
+            ├── EmptyEntityRenderer.java                 # 占位渲染器
+            └── ModSlimeRenderer.java                    # 史莱姆渲染器（复用原版模型/纹理）
 ```
 
 ## 构建

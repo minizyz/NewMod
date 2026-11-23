@@ -18,11 +18,26 @@ public final class ModEntities {
 					.build("empty_entity")
 	);
 
+	/**
+	 * 自定义史莱姆：直接复用原版 Slime 的 AI 与行为。
+	 * 尺寸参数与原版一致，spawnDimensionsScale 让刷怪箱按最大体积预留空间。
+	 */
+	public static final EntityType<ModSlime> MOD_SLIME = Registry.register(
+			BuiltInRegistries.ENTITY_TYPE,
+			NewMod.id("mod_slime"),
+			EntityType.Builder.of(ModSlime::new, MobCategory.MONSTER)
+					.sized(0.52F, 0.52F)
+					.spawnDimensionsScale(4.0F)
+					.clientTrackingRange(10)
+					.build("mod_slime")
+	);
+
 	private ModEntities() {
 	}
 
 	public static void register() {
 		// 触发实体类型类加载，并注册默认属性
 		FabricDefaultAttributeRegistry.register(EMPTY_ENTITY, EmptyEntity.createAttributes());
+		FabricDefaultAttributeRegistry.register(MOD_SLIME, ModSlime.createAttributes());
 	}
 }
